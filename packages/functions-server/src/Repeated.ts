@@ -1,7 +1,7 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
 
-import { Function, FunctionConfig } from "./Function";
-import { Handler } from "./types";
+import { Function, type FunctionConfig } from "./Function";
+import type { Handler } from "./types";
 
 export type RepeatedConfig = {
 	cron: string;

@@ -1,4 +1,4 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
 
 export type MemoryStoreConfig<TValue> = {
 	persistentMap: Map<string, TValue>;

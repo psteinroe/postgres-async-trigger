@@ -1,5 +1,3 @@
-import { WorkerProPreset } from "@graphile-pro/worker";
-
 import { AsyncTriggerDestination } from "./AsyncTriggerDestination";
 import { ExporterServer } from "./ExporterServer";
 import { InngestDestination } from "./InngestDestination";
@@ -10,7 +8,6 @@ export const buildServer = async () => {
 
 	const server = new ExporterServer({
 		onError: (err, ctx) => console.error(err),
-		heartbeatId: env.HEARTBEAT_ID,
 		destinations: [
 			new InngestDestination({
 				id: "job-exporter-service",
@@ -33,11 +30,9 @@ export const buildServer = async () => {
 		},
 		runner: {
 			preset: {
-				extends: [WorkerProPreset],
 				worker: {
 					connectionString: env.DB_CONNECTION_STRING,
 					schema: "graphile_worker",
-					sweepThreshold: 600000, // 10 minutes
 					concurrentJobs: 10,
 					// pollInterval is only relevant for scheduled jobs (after now()) and retries
 					pollInterval: 120_000,

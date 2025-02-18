@@ -1,8 +1,8 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
-import { Logger } from "@pg-async-trigger/logger";
-import { Job, RepeatOptions } from "bullmq";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { Logger } from "@pg-async-trigger/logger";
+import type { Job, RepeatOptions } from "bullmq";
 
-import {
+import type {
 	CallFunctionOpts,
 	Handler,
 	Helpers,

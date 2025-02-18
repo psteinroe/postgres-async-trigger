@@ -1,11 +1,11 @@
-import { Functions } from "@pg-async-trigger/functions-schema";
+import type { Functions } from "@pg-async-trigger/functions-schema";
 import {
+	type ConnectionOptions,
+	type DefaultJobOptions,
 	Queue,
 	QueueEvents,
-	ConnectionOptions,
-	DefaultJobOptions,
 } from "bullmq";
-import { makeWorkerUtils, WorkerUtils } from "graphile-worker";
+import { type WorkerUtils, makeWorkerUtils } from "graphile-worker";
 
 export type FunctionsClientOptions = {
 	redis: ConnectionOptions;

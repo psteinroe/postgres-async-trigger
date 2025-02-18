@@ -1,19 +1,19 @@
+import { type Server, createServer } from "node:http";
+import type { ListenOptions } from "node:net";
 import {
 	FunctionsClient,
-	FunctionsClientOptions,
-	TriggerFunctionFallbackJobPayload,
+	type FunctionsClientOptions,
+	type TriggerFunctionFallbackJobPayload,
 } from "@pg-async-trigger/functions-client";
-import { Functions } from "@pg-async-trigger/functions-schema";
-import { ILogger, Logger } from "@pg-async-trigger/logger";
+import type { Functions } from "@pg-async-trigger/functions-schema";
+import { type ILogger, Logger } from "@pg-async-trigger/logger";
 import {
-	JobHelpers,
-	PromiseOrDirect,
+	type JobHelpers,
+	type PromiseOrDirect,
+	type Runner,
+	type RunnerOptions,
 	run,
-	Runner,
-	RunnerOptions,
 } from "graphile-worker";
-import { Server, createServer } from "node:http";
-import { ListenOptions } from "node:net";
 
 export interface Destination<P extends object = any> {
 	readonly identifier: string;
@@ -64,21 +64,10 @@ export class ExporterServer {
 				},
 			},
 		});
-		if (opts.heartbeatId) {
-			this.heartbeatInterval = this.startHeartbeat();
-		}
 
 		this.opts.destinations.forEach((d) => {
 			this.destinations[d.identifier] = d;
 		});
-	}
-
-	private startHeartbeat() {
-		return setInterval(async () => {
-			await fetch(
-				`https://uptime.betterstack.com/api/v1/heartbeat/${this.opts.heartbeatId}`,
-			);
-		}, 60000);
 	}
 
 	private createHttpServer(): Server {

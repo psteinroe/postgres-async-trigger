@@ -8,6 +8,7 @@
 	"types": "./src/index.ts",
 	"dependencies": {
 		"@pg-async-trigger/functions-schema": "workspace:*",
+		"@pg-async-trigger/logger": "workspace:*",
 		"bullmq": "5.34.10",
 		"postgres": "3.4.5",
 		"zod": "3.23.8"

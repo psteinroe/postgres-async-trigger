@@ -1,7 +1,11 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
-import { Trigger, Helpers } from "@pg-async-trigger/functions-server";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { runOnce, JobHelpers, PromiseOrDirect } from "graphile-worker";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { Helpers, Trigger } from "@pg-async-trigger/functions-server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+	type JobHelpers,
+	type PromiseOrDirect,
+	runOnce,
+} from "graphile-worker";
 
 export type FunctionsTestAppOptions<
 	Dependencies extends Record<string, any>,

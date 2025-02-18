@@ -4,7 +4,8 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"dev": "TODO"
+		"dev": "TODO",
+		"generate": "bun supabase gen types typescript --local > ./src/database.ts"
 	},
 	"devDependencies": {
 		"supabase": "latest"

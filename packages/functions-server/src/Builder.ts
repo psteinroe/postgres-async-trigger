@@ -1,9 +1,9 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
 
-import { Function, FunctionConfig } from "./Function";
-import { Repeated, RepeatedConfig } from "./Repeated";
+import { Function, type FunctionConfig } from "./Function";
+import { Repeated, type RepeatedConfig } from "./Repeated";
 import { TriggerBuilder } from "./TriggerBuilder";
-import { Handler } from "./types";
+import type { Handler } from "./types";
 
 export class Builder<
 	Database,

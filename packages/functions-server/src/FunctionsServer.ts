@@ -1,29 +1,27 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import { type Server, createServer } from "node:http";
+import type { ListenOptions } from "node:net";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
 import {
-	ConnectionOptions,
+	type ConnectionOptions,
 	DelayedError,
-	Job,
+	type Job,
 	MetricsTime,
 	Queue,
 	QueueEvents,
-	Telemetry,
 	Worker,
 } from "bullmq";
-import { BullMQOtel } from "bullmq-otel";
-import { createServer, Server } from "node:http";
-import { ListenOptions } from "node:net";
-import postgres from "postgres";
+import type postgres from "postgres";
 
-import { Function as AFunction, FunctionConfig } from "./Function";
+import type { Function as AFunction, FunctionConfig } from "./Function";
 import { FunctionCache } from "./FunctionCache";
-import { Repeated } from "./Repeated";
-import { Trigger } from "./Trigger";
-import {
-	WorkerServerLogger,
-	Handler,
+import type { Repeated } from "./Repeated";
+import type { Trigger } from "./Trigger";
+import type {
 	AsyncTrigger,
-	TriggerOperation,
+	Handler,
 	Helpers,
+	TriggerOperation,
+	WorkerServerLogger,
 } from "./types";
 
 export type FunctionsServerOpts<
@@ -56,7 +54,6 @@ export class FunctionsServer<
 	private queues: Record<string, Queue> = {};
 	private workers: Record<string, Worker> = {};
 	private queueEvents: Record<string, QueueEvents> = {};
-	private telemetry: Telemetry;
 
 	private cache: FunctionCache = new FunctionCache<Functions>();
 
@@ -72,7 +69,6 @@ export class FunctionsServer<
 		private readonly opts: FunctionsServerOpts<Dependencies, Functions>,
 	) {
 		this.httpServer = this.createHttpServer();
-		this.telemetry = new BullMQOtel(appName);
 	}
 
 	private createHttpServer(): Server {
@@ -210,7 +206,6 @@ export class FunctionsServer<
 				metrics: {
 					maxDataPoints: MetricsTime.TWO_WEEKS,
 				},
-				telemetry: this.telemetry,
 				concurrency: 1,
 				connection: this.opts.connection,
 				removeOnComplete: {
@@ -278,7 +273,6 @@ export class FunctionsServer<
 					maxDataPoints: MetricsTime.TWO_WEEKS,
 				},
 				concurrency: opts.concurrency,
-				telemetry: this.telemetry,
 				connection: this.opts.connection,
 				removeOnComplete: {
 					age: 0,
@@ -452,7 +446,6 @@ export class FunctionsServer<
 		if (!this.queues[name]) {
 			this.queues[name] = new Queue(name, {
 				connection: this.opts.connection,
-				telemetry: this.telemetry,
 				defaultJobOptions: {
 					attempts: 9,
 					backoff: {

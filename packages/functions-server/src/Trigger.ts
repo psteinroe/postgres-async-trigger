@@ -1,7 +1,12 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
 
-import { Function, FunctionConfig } from "./Function";
-import { DataTypes, Handler, TriggerConfig, TriggerOperation } from "./types";
+import { Function, type FunctionConfig } from "./Function";
+import type {
+	DataTypes,
+	Handler,
+	TriggerConfig,
+	TriggerOperation,
+} from "./types";
 
 export class Trigger<
 	Function extends FunctionDefinition,

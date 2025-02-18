@@ -1,5 +1,5 @@
-import { FunctionsServer } from "@pg-async-trigger/functions-server";
-import { describe, it, expect, afterAll } from "vitest";
+import { afterAll, describe, expect, it } from "bun:test";
+import type { FunctionsServer } from "@pg-async-trigger/functions-server";
 
 import { buildServer } from "./server";
 
@@ -12,7 +12,7 @@ describe("server", async () => {
 		}
 	});
 
-	it("should start", { timeout: 20000 }, async () => {
+	it("should start", async () => {
 		server = await buildServer();
 
 		await server.listen({ port: 3003 });

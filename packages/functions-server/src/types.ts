@@ -1,6 +1,6 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
-import { ILogger } from "@pg-async-trigger/logger";
-import { Job, RepeatOptions } from "bullmq";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { ILogger } from "@pg-async-trigger/logger";
+import type { Job, RepeatOptions } from "bullmq";
 
 export type WorkerServerLogger = ILogger;
 

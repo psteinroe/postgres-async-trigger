@@ -1,9 +1,14 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
-import { GenericSchema } from "@supabase/supabase-js/dist/module/lib/types";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { GenericSchema } from "@supabase/supabase-js/dist/module/lib/types";
 
-import { FunctionConfig } from "./Function";
+import type { FunctionConfig } from "./Function";
 import { Trigger } from "./Trigger";
-import { DataTypes, Handler, TriggerOperation, TriggerPayload } from "./types";
+import type {
+	DataTypes,
+	Handler,
+	TriggerOperation,
+	TriggerPayload,
+} from "./types";
 
 type ParserError<Message extends string> = { error: true } & Message;
 type GenericStringError = ParserError<"Received a generic string">;

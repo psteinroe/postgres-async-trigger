@@ -1,9 +1,9 @@
-import {
+import type {
 	FunctionPayload,
 	FunctionReturns,
 	Functions,
 } from "@pg-async-trigger/functions-schema";
-import {
+import type {
 	Function,
 	Handler,
 	Helpers,
@@ -11,7 +11,7 @@ import {
 	Trigger,
 } from "@pg-async-trigger/functions-server";
 
-import { Dependencies } from "./dependencies";
+import type { Dependencies } from "./dependencies";
 
 export type FunctionsIndex = {
 	triggers: Trigger<Functions, Dependencies, any>[];

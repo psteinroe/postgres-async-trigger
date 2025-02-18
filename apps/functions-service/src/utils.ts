@@ -1,11 +1,11 @@
-import { Functions } from "@pg-async-trigger/functions-schema";
+import type { Functions } from "@pg-async-trigger/functions-schema";
 import {
-	OverwriteHelpers,
+	type Helpers,
+	type OverwriteHelpers,
 	buildTestHelpers,
-	Helpers,
 } from "@pg-async-trigger/functions-server";
 
-import { Dependencies, buildTestDependencies } from "./dependencies";
+import { type Dependencies, buildTestDependencies } from "./dependencies";
 
 export const buildTestDependenciesWithHelpers = (
 	overwrite?: OverwriteHelpers<Functions, Dependencies> & {

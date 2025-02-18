@@ -1,24 +1,24 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
-import { SupabaseClient } from "@supabase/supabase-js";
-import postgres, { PostgresError } from "postgres";
-import { z } from "zod";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type postgres from "postgres";
+import type { PostgresError } from "postgres";
+import type { z } from "zod";
 
-import { Function as AFunction } from "./Function";
+import type { Function as AFunction } from "./Function";
 import { FunctionsServer } from "./FunctionsServer";
-import { Repeated } from "./Repeated";
-import { Trigger } from "./Trigger";
-import { SAMPLE_DATA, WorkerServerLogger } from "./types";
+import type { Repeated } from "./Repeated";
+import type { Trigger } from "./Trigger";
+import { SAMPLE_DATA, type WorkerServerLogger } from "./types";
 
 export class FunctionsServerFactory<
 	Database = any,
 	Functions extends FunctionDefinition = FunctionDefinition,
 	Environment extends {
-		BULLMQ_REDIS_HOST: string;
-		BULLMQ_REDIS_PORT: number;
-		BULLMQ_REDIS_USERNAME: string;
-		BULLMQ_REDIS_PASSWORD: string;
+		REDIS_HOST: string;
+		REDIS_PORT: number;
+		REDIS_USERNAME: string;
+		REDIS_PASSWORD: string;
 		NODE_ENV: string;
-		ENV: string;
 		DB_CONNECTION_STRING: string;
 	} & Record<string, any> = never,
 	Dependencies extends {
@@ -39,12 +39,11 @@ export class FunctionsServerFactory<
 
 	withEnv<
 		E extends Record<string, unknown> & {
-			BULLMQ_REDIS_HOST: string;
-			BULLMQ_REDIS_PORT: number;
-			BULLMQ_REDIS_USERNAME: string;
-			BULLMQ_REDIS_PASSWORD: string;
+			REDIS_HOST: string;
+			REDIS_PORT: number;
+			REDIS_USERNAME: string;
+			REDIS_PASSWORD: string;
 			NODE_ENV: string;
-			ENV: string;
 			DB_CONNECTION_STRING: string;
 		},
 	>(env: z.ZodType<E>): FunctionsServerFactory<Database, Functions, E> {
@@ -138,10 +137,10 @@ export class FunctionsServerFactory<
 			repeated: env.NODE_ENV === "production" ? repeated : [],
 			dependencies,
 			connection: {
-				host: env.BULLMQ_REDIS_HOST,
-				port: env.BULLMQ_REDIS_PORT,
-				username: env.BULLMQ_REDIS_USERNAME,
-				password: env.BULLMQ_REDIS_PASSWORD,
+				host: env.REDIS_HOST,
+				port: env.REDIS_PORT,
+				username: env.REDIS_USERNAME,
+				password: env.REDIS_PASSWORD,
 				...(env.NODE_ENV === "production" ? { tls: {} } : {}),
 			},
 			onError: this.opts?.onError,

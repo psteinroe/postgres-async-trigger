@@ -1,6 +1,6 @@
-import { ClientOptions, EventPayload, Inngest } from "inngest";
+import { type ClientOptions, type EventPayload, Inngest } from "inngest";
 
-import { Destination } from "./ExporterServer";
+import type { Destination } from "./ExporterServer";
 
 type InngestPayload = EventPayload;
 

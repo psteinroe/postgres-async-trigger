@@ -1,6 +1,6 @@
-import { FunctionDefinition } from "@pg-async-trigger/functions-schema";
+import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
 
-import { Handler } from "./types";
+import type { Handler } from "./types";
 
 export type FunctionConfig = {
 	concurrency: number;
@@ -19,7 +19,7 @@ export class Function<
 		public readonly name: string,
 		public readonly handler: Handler<Payload, Dependencies, Result, Functions>,
 		public readonly config: FunctionConfig,
-		type: string = "Function",
+		type = "Function",
 	) {
 		this._type = type;
 	}

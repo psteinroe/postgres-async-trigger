@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "bun:test";
 
-import { ExporterServer } from "./ExporterServer";
+import type { ExporterServer } from "./ExporterServer";
 import { buildServer } from "./server";
 
 describe("server", async () => {

@@ -1,6 +1,6 @@
-import { Queue, ConnectionOptions } from "bullmq";
+import { type ConnectionOptions, Queue } from "bullmq";
 
-import { Destination } from "./ExporterServer";
+import type { Destination } from "./ExporterServer";
 
 type AsyncTriggerPayload = {
 	tg_name: string;
