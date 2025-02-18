@@ -10,5 +10,5 @@
 		"@pg-async-trigger/functions-schema": "workspace:*",
 		"graphile-worker": "0.17.0-canary.1fcb2a0",
 		"bullmq": "5.34.10"
-	},
+	}
 }

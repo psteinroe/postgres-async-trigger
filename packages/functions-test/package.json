@@ -11,5 +11,5 @@
 		"@pg-async-trigger/functions-server": "workspace:*",
 		"@supabase/supabase-js": "2.46.1",
 		"graphile-worker": "0.17.0-canary.1fcb2a0"
-	},
+	}
 }

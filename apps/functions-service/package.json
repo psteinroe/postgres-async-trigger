@@ -1,19 +1,19 @@
 {
-  "name": "@pg-async-trigger/functions-service",
-  "type": "module",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "TODO",
-  },
-  "dependencies": {
-    "@pg-async-trigger/functions-schema": "workspace:*",
-    "@pg-async-trigger/functions-server": "workspace:*",
-    "@pg-async-trigger/supabase": "workspace:*",
-    "@supabase-cache-helpers/postgrest-server": "0.0.2",
-    "@supabase/supabase-js": "2.46.1"
-  },
-  "devDependencies": {
-    "@pg-async-trigger/functions-test": "workspace:*",
-  }
+	"name": "@pg-async-trigger/functions-service",
+	"type": "module",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "TODO"
+	},
+	"dependencies": {
+		"@pg-async-trigger/functions-schema": "workspace:*",
+		"@pg-async-trigger/functions-server": "workspace:*",
+		"@pg-async-trigger/supabase": "workspace:*",
+		"@supabase-cache-helpers/postgrest-server": "0.0.2",
+		"@supabase/supabase-js": "2.46.1"
+	},
+	"devDependencies": {
+		"@pg-async-trigger/functions-test": "workspace:*"
+	}
 }
