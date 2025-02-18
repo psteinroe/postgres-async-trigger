@@ -1,0 +1,15 @@
+{
+  "name": "@pg-async-trigger/db-exporter-service",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "TODO",
+  },
+  "dependencies": {
+    "@pg-async-trigger/functions-client": "workspace:*",
+    "@pg-async-trigger/functions-schema": "workspace:*",
+    "inngest": "3.24.0",
+    "graphile-worker": "0.17.0-canary.1fcb2a0"
+  }
+}

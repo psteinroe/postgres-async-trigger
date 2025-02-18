@@ -3,27 +3,31 @@ Run asynchronous side-effects on database events.
 
 At [hellomateo](https://www.hellomateo.de), we rely heavily on [Supabase](https://supabase.com). And like any SaaS, we need to execute side-effects like sending a Webhook after a record changed. At first, we manually created database triggers that inserted jobs into the Postgres-based queue [Graphile Worker](https://worker.graphile.org) after insert/update/delete. Not only was this a bad DX, we also hit scalability issues: the fetch job query from Graphile Worker dominated our database load, and the maxed out workers were not able to process jobs fast enough during peak times.
 
+![Async Trigger Before](./media/before.png)
+
 As an intermediary solution, we forwarded the critical jobs from Graphile Worker to QStash from [Upstash](https://upstash.com). This helped with the maxed out workers at the cost of higher latency. As a messaging solution, higher latency is bad though. But still, things stabilised for the time being which gave us time to find a better solution.
 
-We wanted to solve not only the scalability issues, but also improve DX. We wanted to reduce the surface area to write business logic. It should be easy to test and implement. Something that promotes functional programming.
+Such a solution should not only solve the scalability issues, but also improve DX. We wanted to reduce the surface area to write business logic. It should be easy to test and implement. Something that promotes functional programming.
 
 ## Exploring Change Data Capture
 
 First, we looked into more scalable solutions to get events out of the database. The obvious option is Change Data Capture (CDC). CDC is a mechanism based on Write-Ahead-Logging provided by Postgres, more specifically [logical decoding](https://www.postgresql.org/docs/current/logicaldecoding-explanation.html). It allows us to subscribe to any change happening in the database. It’s almost instant, and without overhead. But it’s a complex beast. To better understand the protocol, I created a quick proof of concept for a pipeline that batches the events before sending them to to a HTTP endpoint. While the PoC was fun and the approach is feasible, there are a lot of things to take care of, and we did not want to take on that extra complexity.
 
-Next, we looked for tools that do the job for us. There is [WalEx](https://github.com/cpursley/walex), an Elixir module to implement async triggers. Thats great, but we want to keep using Typescript. During that time, I also talked to the guys at [Sequin](https://sequinstream.com). I was very excited, because it seemed like the perfect fit. But they are very young, and were just getting started with their cloud offering. Self-hosting is an option, but with no Elixir experience on the team risky. I also did not like their DX. I want the developer to define triggers in the code, and Sequin requires you to use their Dashboard or Terraform. There are other tools like [Debezium](https://debezium.io), but their operational complexity is way too high. We decided that while CDC can be a great solution further down the road, its complexity is not justified yet.
+Next, we looked for tools that do the job for us. There is [WalEx](https://github.com/cpursley/walex), an Elixir module to implement async triggers. Thats great, but we want to keep using Typescript. During that time, I also got in contact with [Sequin](https://sequinstream.com). Their product is great, but its designed more as an infrastructure piece, and not towards application developers. We want to define our triggers in the code, and Sequin requires you to use their Dashboard or Terraform. There are other tools like [Debezium](https://debezium.io), but their operational complexity is way too high. We decided that while CDC can be a great solution further down the road, its complexity is not justified yet.
 
-Side Note: At this point, we also became jealous on frameworks like Rails, where such side effects are baked in. It served us as an inspiration when we implemented our own little framework.
+> [!NOTE]
+>  At this point, we also became jealous on frameworks like Rails, where such side effects are baked in. It served us as an inspiration when we implemented our own little framework.
 
 ## The Simple Solution is Good Enough
 
-We took a step back, and began tinkering on improving what we already have (and know well):  How can we reduce the database load and reduce latency without compromising on horizontal scability?
+We took a step back, and began tinkering on improving what we already have (and know well): How can we reduce the database load and reduce latency without compromising on horizontal scability?
 
 First, QStash had to be replaced. A HTTP based queue will always introduce latency we cannot afford. We quickly decided on [BullMq](https://bullmq.io), because we were already using Redis for caching and it’s a battle-proven queuing system with low double digit latency.
 
 Now to the fun part: how to reduce the database load from Graphile Worker while increasing throughput? The only option is to start batching jobs. We have tables that trigger a lot of side effects, and each job was inserted from its own database trigger similar to this:
 
 ```SQL
+-- first side effect on `my_table`
 create or replace function public.first_side_effect() returns trigger as $$
 begin
    perform private.add_graphile_worker_job (
@@ -41,6 +45,7 @@ after insert on my_table for each row
 when (new.my_column is true)
 execute procedure first_side_effect();
 
+-- second side effect on `my_table`
 create or replace function public.second_side_effect() returns trigger as $$
 begin
    perform private.add_graphile_worker_job (
@@ -92,11 +97,11 @@ execute procedure first_side_effect();
 
 Here, we move the `when` clauses into `if` clauses, and add the job to the list of jobs if it evaluates to true. The Graphile Worker then picks up the batched job, and forwards the payloads based on the `tg_name`. Note that this sample is missing a few details, but more on that later.
 
-We did a quick proof of concept and the results were promising. But we are not there yet. The database triggers are boilerplate, and we do not want to require a new migration every time we implement a side-effect anymore.
+We did a quick proof of concept and the database load was decreasing! But scalability is just the first problem we set out to solve. The database triggers are boilerplate, and we do not want to require a new migration every time we implement a side-effect anymore.
 
-## Implementing Async Triggers
+## Crafting the DX: Implementing Async Triggers
 
-The core idea of async triggers is to bootstrap the DDL for the database triggers that check the conditions for each subscription and insert a batch job. The developer declares an async trigger using a simple DSL that is very similar to its equivalent in SQL.
+Our goal with async triggers is to have a single place where a developer implements, tests and registers side-effects. For each trigger, we want to bootstrap the DDL for the actual database trigger that checks the conditions for each subscription and inserts a batch job. The DSL we came up with is very similar to its equivalent in SQL:
 
 ```ts
 import { builder } from '../../builder';
@@ -118,7 +123,12 @@ export default builder
   );
 ```
 
-Any async trigger declares up to three subscriptions on a table: insert, update and delete. Unlike database triggers, each subscription has its own optional `when` clause to filter on old and new. We also enforce the selection of columns to reduce the payload size. The execute function receives a typed event payload as well as globally declared dependencies. All functions are registered on the server and collected on startup of the service. Before we start processing jobs, a `set_subscriptions` rpc is called that merges all subscriptions into the `async_trigger.subscription` table:
+Any async trigger declares up to three subscriptions on a table: insert, update and delete. Unlike database triggers, each subscription has its own optional `when` clause to filter on old and new. We also enforce the selection of columns to reduce the payload size. The execute function receives a typed event payload as well as globally declared dependencies.
+
+> [!NOTE]
+> The payload types are the only integration with Supabase. Everything else is just plain Postgres and Node.
+
+All functions are registered on the server and collected on startup of the service. Before we start processing jobs, a `set_subscriptions` rpc is called that merges all subscriptions into the `async_trigger.subscription` table:
 
 ```sql
 create table if not exists async_trigger.subscription (

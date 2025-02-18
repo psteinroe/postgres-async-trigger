@@ -1,8 +1,9 @@
 {
-	"name": "pg_async_trigger",
-	"workspaces": ["apps/*", "packages/*"],
+	"name": "pg-async-trigger",
+	"workspaces": ["apps/*", "packages/*", "supabase"],
 	"type": "module",
 	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
 		"@types/bun": "latest"
 	},
 	"peerDependencies": {
