@@ -101,7 +101,11 @@ We did a quick proof of concept and the database load was decreasing! But scalab
 
 ## Crafting the DX: Implementing Async Triggers
 
-Our goal with async triggers is to have a single place where a developer implements, tests and registers side-effects. For each trigger, we want to bootstrap the DDL for the actual database trigger that checks the conditions for each subscription and inserts a batch job. The DSL we came up with is very similar to its equivalent in SQL:
+Our goal with async triggers is to have a single place where a developer implements, tests and registers side-effects. For each trigger, we want to bootstrap the DDL for the actual database trigger that checks the conditions for each subscription and inserts a batch job.
+
+![Async Trigger After](./media/after.png)
+
+The DSL we came up with is very similar to its equivalent in SQL:
 
 ```ts
 import { builder } from '../../builder';
