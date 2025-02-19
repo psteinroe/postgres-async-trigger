@@ -3,12 +3,7 @@ import type { GenericSchema } from "@supabase/supabase-js/dist/module/lib/types"
 
 import type { FunctionConfig } from "./Function";
 import { Trigger } from "./Trigger";
-import type {
-	DataTypes,
-	Handler,
-	TriggerOperation,
-	TriggerPayload,
-} from "./types";
+import type { Handler, TriggerOperation, TriggerPayload } from "./types";
 
 type ParserError<Message extends string> = { error: true } & Message;
 type GenericStringError = ParserError<"Received a generic string">;
@@ -40,17 +35,9 @@ export class TriggerBuilder<
 	Table extends Schema["Tables"][TableName] = Schema["Tables"][TableName],
 	Columns extends keyof Table["Row"] = keyof Table["Row"],
 	Operations extends TriggerOperation = never,
-	ExtraContext extends Record<string, any> = never,
 > {
 	private table: TableName | undefined;
 	private columns: Columns | undefined;
-	private extra:
-		| {
-				query: string;
-				when?: string;
-				describe: Record<string, DataTypes>;
-		  }
-		| undefined;
 	private ops: { [K in TriggerOperation]?: string } = {};
 
 	constructor(private name: string) {}
@@ -66,8 +53,7 @@ export class TriggerBuilder<
 		TN,
 		T,
 		Columns,
-		Operations,
-		ExtraContext
+		Operations
 	> {
 		this.table = relation as any;
 		return this as any;
@@ -84,30 +70,9 @@ export class TriggerBuilder<
 		TableName,
 		Table,
 		SplitColumns<C, Table["Row"]>,
-		Operations,
-		ExtraContext
+		Operations
 	> {
 		this.columns = columns as any;
-		return this as any;
-	}
-
-	withExtra<Context extends Record<string, any>>(extra: {
-		query: string;
-		when?: string;
-		describe: Record<string, DataTypes>;
-	}): TriggerBuilder<
-		Function,
-		Database,
-		Dependencies,
-		SchemaName,
-		Schema,
-		TableName,
-		Table,
-		Columns,
-		Operations,
-		Context
-	> {
-		this.extra = extra;
 		return this as any;
 	}
 
@@ -122,8 +87,7 @@ export class TriggerBuilder<
 		TableName,
 		Table,
 		Columns,
-		Operations | "INSERT",
-		ExtraContext
+		Operations | "INSERT"
 	> {
 		this.ops.INSERT = when || "";
 		return this as any;
@@ -140,8 +104,7 @@ export class TriggerBuilder<
 		TableName,
 		Table,
 		Columns,
-		Operations | "UPDATE",
-		ExtraContext
+		Operations | "UPDATE"
 	> {
 		this.ops.UPDATE = when || "";
 		return this as any;
@@ -158,8 +121,7 @@ export class TriggerBuilder<
 		TableName,
 		Table,
 		Columns,
-		Operations | "DELETE",
-		ExtraContext
+		Operations | "DELETE"
 	> {
 		this.ops.DELETE = when || "";
 		return this as any;
@@ -167,7 +129,7 @@ export class TriggerBuilder<
 
 	execute(
 		handler: Handler<
-			TriggerPayload<Operations, Pick<Table["Row"], Columns>, ExtraContext>,
+			TriggerPayload<Operations, Pick<Table["Row"], Columns>>,
 			Dependencies,
 			void,
 			Function
@@ -176,14 +138,13 @@ export class TriggerBuilder<
 	): Trigger<
 		Function,
 		Dependencies,
-		TriggerPayload<Operations, Pick<Table["Row"], Columns>, ExtraContext>
+		TriggerPayload<Operations, Pick<Table["Row"], Columns>>
 	> {
 		return new Trigger(this.name, handler, {
 			...config,
 			table: this.table as string,
 			columns: this.columns as string,
 			ops: this.ops,
-			extra: this.extra,
 		});
 	}
 }

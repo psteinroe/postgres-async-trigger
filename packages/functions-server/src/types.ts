@@ -85,27 +85,11 @@ export type TriggerConfig = {
 	table: string;
 	columns: string;
 	ops: { [K in TriggerOperation]?: string };
-	extra?: {
-		query: string;
-		when?: string;
-		describe: Record<string, DataTypes>;
-	};
 };
-
-export const SAMPLE_DATA = {
-	text: "'Hello, world!'",
-	uuid: "'f64b1e32-9e9c-4ed4-a343-45297bd3bcdf'::uuid",
-	channel_status: "'active'::channel_status",
-	provider_type: "'meta-waba'::provider_type",
-	boolean: "true",
-};
-
-export type DataTypes = keyof typeof SAMPLE_DATA;
 
 export type TriggerPayload<
 	Operations extends TriggerOperation,
 	T extends Record<string, unknown>,
-	ExtraContext extends Record<string, any> = never,
 > = {
 	tg_op: Operations;
 	new: Operations extends "INSERT" | "UPDATE"
@@ -119,17 +103,10 @@ export type TriggerPayload<
 			: T
 		: null;
 	auth: AuthContext;
-	execution: ExecutionContext | null;
 	timestamp: number;
-	extra: [ExtraContext] extends [never] ? null : ExtraContext;
 };
 
-export type AuthContext =
-	| ContactAuthContext
-	| TokenAuthContext
-	| UserAuthContext
-	| EmployeeAuthContext
-	| ServiceRoleContext;
+export type AuthContext = UserAuthContext | ServiceRoleContext;
 
 export type ServiceRoleContext = {
 	role: "service_role";
@@ -138,24 +115,6 @@ export type ServiceRoleContext = {
 export const isServiceRoleContext = (c: AuthContext): c is ServiceRoleContext =>
 	c.role === "service_role";
 
-export type ContactAuthContext = {
-	role: "contactauthed";
-	contact_id: string;
-	organisation_id: string;
-};
-
-export const isContactAuthContext = (c: AuthContext): c is ContactAuthContext =>
-	c.role === "contactauthed";
-
-export type TokenAuthContext = {
-	role: "tokenauthed";
-	token_id: string;
-	organisation_id: string;
-};
-
-export const isTokenAuthContext = (c: AuthContext): c is TokenAuthContext =>
-	c.role === "tokenauthed";
-
 export type UserAuthContext = {
 	role: "authenticated";
 	user_id: string;
@@ -163,19 +122,3 @@ export type UserAuthContext = {
 
 export const isUserAuthContext = (c: AuthContext): c is UserAuthContext =>
 	c.role === "authenticated";
-
-export type EmployeeAuthContext = UserAuthContext & {
-	employee_id: string;
-	organisation_id: string;
-};
-
-export const isEmployeeAuthContext = (
-	c: AuthContext,
-): c is EmployeeAuthContext => c.role === "authenticated" && "employee_id" in c;
-
-export type ExecutionContext = RuleExecutionContext;
-
-export type RuleExecutionContext = {
-	type: "rule";
-	rule_id: string;
-};

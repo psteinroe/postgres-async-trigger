@@ -1,14 +1,13 @@
 import type { FunctionDefinition } from "@pg-async-trigger/functions-schema";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type postgres from "postgres";
-import type { PostgresError } from "postgres";
 import type { z } from "zod";
 
 import type { Function as AFunction } from "./Function";
 import { FunctionsServer } from "./FunctionsServer";
 import type { Repeated } from "./Repeated";
 import type { Trigger } from "./Trigger";
-import { SAMPLE_DATA, type WorkerServerLogger } from "./types";
+import { type WorkerServerLogger } from "./types";
 
 export class FunctionsServerFactory<
 	Database = any,
@@ -83,52 +82,6 @@ export class FunctionsServerFactory<
 
 		const env = this.envSchema.parse(process.env);
 		const dependencies = this.buildDeps(env);
-
-		const sql = dependencies.sql;
-
-		// validate that all trigger extra clauses are valid
-		for (const trigger of triggers) {
-			if (!trigger.extra) {
-				continue;
-			}
-
-			const { query, when } = trigger.extra;
-
-			// replace params with $1, $2, etc
-			let ctr = 1;
-			let queryClause = query;
-			while (true) {
-				const n = queryClause.replace(/(new\.|old\.)\w+/i, `$$${ctr++}`);
-				if (n === queryClause) {
-					break;
-				}
-				queryClause = n;
-			}
-
-			try {
-				await sql.unsafe(queryClause).describe();
-			} catch (e) {
-				throw new Error(
-					`Invalid extra query for trigger ${trigger.name}: ${(e as PostgresError).message} for "${queryClause}"`,
-				);
-			}
-
-			const whenClause = when
-				? Object.entries(trigger.extra.describe).reduce((acc, [key, type]) => {
-						return acc.replaceAll(key, SAMPLE_DATA[type]);
-					}, when)
-				: null;
-
-			if (whenClause) {
-				try {
-					await sql.unsafe(`select ${whenClause}`).describe();
-				} catch (e) {
-					throw new Error(
-						`Invalid extra when clause for trigger ${trigger.name}: ${(e as PostgresError).message} for "${whenClause}"`,
-					);
-				}
-			}
-		}
 
 		return new FunctionsServer(this.name, {
 			triggers,

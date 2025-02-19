@@ -29,12 +29,14 @@ export class FunctionsTestApp<
 	Functions extends FunctionDefinition = FunctionDefinition,
 > {
 	private readonly appName: string;
+	public readonly opts: FunctionsTestAppOptions<Dependencies, Functions>;
 
 	constructor(
 		testName: string,
-		private readonly opts: FunctionsTestAppOptions<Dependencies, Functions>,
+		opts: FunctionsTestAppOptions<Dependencies, Functions>,
 	) {
 		this.appName = `test_${testName}_${Math.floor(Math.random() * 1000)}`;
+		this.opts = opts;
 
 		if (!opts.databaseConnectionString) {
 			throw new Error("Missing database connection string");
